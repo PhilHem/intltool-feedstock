@@ -8,6 +8,13 @@ if [[ $(uname) == Darwin ]]; then
   export LIBRARY_SEARCH_VAR=DYLD_FALLBACK_LIBRARY_PATH
   export MACOSX_DEPLOYMENT_TARGET="10.9"
   export CXXFLAGS="-stdlib=libc++ $CXXFLAGS"
+  
+  # Add arm64-specific flags for osx-aarch64
+  if [[ "${CONDA_BUILD_CROSS_COMPILATION:-0}" == 1 ]]; then
+    export CFLAGS="$CFLAGS -target arm64-apple-darwin"
+    export CXXFLAGS="$CXXFLAGS -target arm64-apple-darwin"
+    export LDFLAGS="$LDFLAGS -target arm64-apple-darwin"
+  fi
 elif [ "$(uname)" == "Linux" ] ; then
   export CPPFLAGS="-I${PREFIX}/include $CPPFLAGS"
   export LDFLAGS="-L${PREFIX}/lib $LDFLAGS"
@@ -24,7 +31,6 @@ for f in tests/selftest.pl.in; do
 make -j$CPU_COUNT
 make check
 make install -j$CPU_COUNT
-
 
 cd $PREFIX
 find . -type f -name "*.la" -exec rm -rf '{}' \; -print
